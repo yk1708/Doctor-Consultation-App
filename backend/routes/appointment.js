@@ -171,7 +171,9 @@ router.post("/book", authenticate, requireRole("patient"), [
         consultationFees,
         platformFees,
         totalAmount,
-        paymentStatus: "Pending",
+        paymentStatus: "Paid",
+        paymentMethod: "Online",
+        paymentDate: new Date(),
         payoutStatus: "Pending",
       });
 
