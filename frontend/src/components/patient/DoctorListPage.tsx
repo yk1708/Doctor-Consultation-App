@@ -303,12 +303,20 @@ const DoctorListPage = () => {
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={star}
-                            className="w-4 h-4 fill-orange-400 text-orange-400"
+                            className={`w-4 h-4 ${
+                              star <= Math.round(doctor.averageRating || 0)
+                                ? "fill-orange-400 text-orange-400"
+                                : "text-gray-300"
+                            }`}
                           />
                         ))}
                       </div>
-                      <span className="font-bold">5.0</span>
-                      <span className="text-gray-500 text-xs">(620)</span>
+                      <span className="font-bold">
+                        {doctor.averageRating ? doctor.averageRating.toFixed(1) : "0.0"}
+                      </span>
+                      <span className="text-gray-500 text-xs">
+                        ({doctor.totalRatings || 0})
+                      </span>
                     </div>
                   </div>
 
@@ -322,14 +330,6 @@ const DoctorListPage = () => {
                         {category}
                       </Badge>
                     ))}
-
-                    <Badge
-                      variant="secondary"
-                      className="bg-yellow-50 text-yellow-700 border-yellow-200 text-xs"
-                    >
-                      <Star className="w-3 h-3 mr-1" />
-                      Popular
-                    </Badge>
                   </div>
 
                   <div className="space-y-2 mb-4 text-center">

@@ -112,6 +112,8 @@ export interface Doctor {
   slotDurationMinutes: number;
   profileImage: string;
   isVerified: boolean;
+  averageRating?: number;
+  totalRatings?: number;
   createdAt: Date;
   updatedAt: Date;
 }

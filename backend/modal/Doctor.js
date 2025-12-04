@@ -60,7 +60,11 @@ const doctorSchema = new mongoose.Schema({
     slotDurationMinutes: {type:Number, default:30},
 
     isVerified: {type:Boolean, default:false},
-        isActive: {type:Boolean, default:true},
+    isActive: {type:Boolean, default:true},
+    
+    //Rating fields
+    averageRating: {type:Number, default:0},
+    totalRatings: {type:Number, default:0},
 
 })
 

@@ -55,7 +55,12 @@ payoutStatus: {
     razorpayOrderId: {type:String},
     razorpayPaymentId: {type:String},
     razorpaySignature: {type:String},
-    paymentDate:{type:Date}
+    paymentDate:{type:Date},
+
+    //Feedback and Rating fields
+    rating: {type:Number, min:1, max:5},
+    feedback: {type:String},
+    feedbackDate: {type:Date}
 
 
 },{timestamps:true});

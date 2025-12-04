@@ -6,12 +6,13 @@ import { Appointment, useAppointmentStore } from "@/store/appointmentStore";
 import { Card, CardContent } from "../ui/card";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { Calendar, Clock, FileText, MapPin, Phone, Star, Video } from "lucide-react";
+import { Calendar, Clock, FileText, MapPin, Phone, Star, Video, MessageSquare } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { getStatusColor } from "@/lib/constant";
 import PrescriptionViewModal from "../doctor/PrescriptionViewModal";
+import FeedbackModal from "./FeedbackModal";
 
 const PatientDashboardContent = () => {
   const { user } = userAuthStore();
@@ -21,6 +22,8 @@ const PatientDashboardContent = () => {
     upcoming: 0,
     past: 0,
   });
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
   useEffect(() => {
     if (user?.type === "patient") {
@@ -90,6 +93,17 @@ const PatientDashboardContent = () => {
   if (!user) {
     return null;
   }
+
+  const handleOpenFeedback = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setShowFeedbackModal(true);
+  };
+
+  const handleFeedbackSuccess = () => {
+    if (user?.type === "patient") {
+      fetchAppointments("patient", activeTab);
+    }
+  };
 
   const AppointmentCard = ({ appointment }: { appointment: Appointment }) => (
     <Card className="hover:shadow-lg transition-shadow">
@@ -199,18 +213,40 @@ const PatientDashboardContent = () => {
                     />
                   )}
 
+                  {appointment.status === 'Completed' && !appointment.rating && (
+                    <Button
+                     variant='outline'
+                     size='sm'
+                     className="text-blue-700 border-blue-200 hover:bg-blue-50"
+                     onClick={() => handleOpenFeedback(appointment)}
+                    >
+                      <MessageSquare className="w-4 h-4 mr-2"/>
+                      Rate Doctor
+                    </Button>
+                  )}
+
 
 
             </div>
 
             {appointment.status === 'Completed' && (
               <div className="flex items-center space-x-1">
-                {[...Array(5)].map((_,i) => (
+                {[...Array(5)].map((_, i) => (
                   <Star
-                   className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                    key={i}
+                    className={`w-4 h-4 ${
+                      appointment.rating && i < appointment.rating
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-gray-300"
+                    }`}
                   />
                 ))}
-                </div>
+                {appointment.rating && (
+                  <span className="text-sm text-gray-600 ml-2">
+                    ({appointment.rating}/5)
+                  </span>
+                )}
+              </div>
             )}
             </div>
           </div>
@@ -369,6 +405,19 @@ const PatientDashboardContent = () => {
           </Tabs>
         </div>
       </div>
+
+      {selectedAppointment && (
+        <FeedbackModal
+          isOpen={showFeedbackModal}
+          onClose={() => {
+            setShowFeedbackModal(false);
+            setSelectedAppointment(null);
+          }}
+          appointmentId={selectedAppointment._id}
+          doctorName={selectedAppointment.doctorId?.name || "Doctor"}
+          onSuccess={handleFeedbackSuccess}
+        />
+      )}
     </>
   );
 };

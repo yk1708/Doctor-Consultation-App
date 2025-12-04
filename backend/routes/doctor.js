@@ -184,7 +184,7 @@ router.get(
       const upcomingAppointments = await Appointment.find({
         doctorId,
         slotStartIso: { $gt: endOfDay },
-        status: { $ne: "Cancelled" },
+        status: { $in: ["Scheduled", "In Progress"] },
       })
         .populate("patientId", "name profileImage age email phone")
         .populate("doctorId", "name fees profileImage specialization")
@@ -224,12 +224,12 @@ router.get(
           todayAppointments: todayAppointments.length,
           totalRevenue,
           completedAppointments:completedAppointmentCount,
-          averageRating: 4.8,
+          averageRating: doctor.averageRating || 0,
         },
         todayAppointments,
         upcomingAppointments,
         performance: {
-          pateintSatisfaction: 4.8,
+          pateintSatisfaction: doctor.averageRating || 0,
           completionRate: 98,
           responseTime: "< 2min",
         },
@@ -253,7 +253,20 @@ router.get("/:doctorId", validate, async (req, res) => {
     if (!doctor) {
       return res.notFound("Doctor not found");
     }
-    res.ok(doctor, "doctor details fetched successfully");
+
+    // Get patient feedback/reviews for this doctor
+    const reviews = await Appointment.find({
+      doctorId,
+      status: "Completed",
+      rating: { $exists: true, $ne: null },
+    })
+      .populate("patientId", "name profileImage")
+      .select("rating feedback feedbackDate patientId")
+      .sort({ feedbackDate: -1 })
+      .limit(10)
+      .lean();
+
+    res.ok({ ...doctor, reviews }, "doctor details fetched successfully");
   } catch (error) {
     res.serverError("Fetching doctor failed", [error.message]);
   }

@@ -313,4 +313,72 @@ router.get("/:id", authenticate, async (req, res) => {
   }
 });
 
+//Add feedback and rating to appointment
+router.put(
+  "/feedback/:id",
+  authenticate,
+  requireRole("patient"),
+  [
+    body("rating")
+      .isInt({ min: 1, max: 5 })
+      .withMessage("Rating must be between 1 and 5"),
+    body("feedback")
+      .optional()
+      .isString()
+      .withMessage("Feedback must be a string"),
+  ],
+  validate,
+  async (req, res) => {
+    try {
+      const { rating, feedback } = req.body;
+      const appointment = await Appointment.findById(req.params.id).populate(
+        "doctorId patientId"
+      );
+
+      if (!appointment) {
+        return res.notFound("Appointment not found");
+      }
+
+      if (appointment.patientId._id.toString() !== req.auth.id) {
+        return res.forbidden("Access denied");
+      }
+
+      if (appointment.status !== "Completed") {
+        return res.badRequest(
+          "Can only provide feedback for completed appointments"
+        );
+      }
+
+      //Update appointment with feedback
+      appointment.rating = rating;
+      appointment.feedback = feedback || "";
+      appointment.feedbackDate = new Date();
+      await appointment.save();
+
+      //Update doctor's average rating
+      const Doctor = require("../modal/Doctor");
+      const completedAppointments = await Appointment.find({
+        doctorId: appointment.doctorId._id,
+        status: "Completed",
+        rating: { $exists: true, $ne: null },
+      });
+
+      const totalRatings = completedAppointments.length;
+      const averageRating =
+        completedAppointments.reduce((sum, apt) => sum + (apt.rating || 0), 0) /
+        totalRatings;
+
+      await Doctor.findByIdAndUpdate(appointment.doctorId._id, {
+        averageRating: Math.round(averageRating * 10) / 10,
+        totalRatings,
+      });
+
+      res.ok(appointment, "Feedback submitted successfully");
+    } catch (error) {
+      console.error("Submit feedback error", error);
+      res.serverError("Failed to submit feedback", [error.message]);
+    }
+  }
+);
+
 module.exports = router;

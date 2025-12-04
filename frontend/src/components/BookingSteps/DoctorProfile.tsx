@@ -2,11 +2,22 @@ import { Doctor } from "@/lib/types";
 import React from "react";
 import { Card, CardContent } from "../ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Award, Heart, MapPin, Star } from "lucide-react";
+import { Award, Heart, MapPin, Star, MessageSquare } from "lucide-react";
 import { Badge } from "../ui/badge";
 
+interface Review {
+  _id: string;
+  rating: number;
+  feedback?: string;
+  feedbackDate: string;
+  patientId: {
+    name: string;
+    profileImage?: string;
+  };
+}
+
 interface DoctorPrfileInterface {
-  doctor: Doctor;
+  doctor: Doctor & { reviews?: Review[] };
 }
 const DoctorProfile = ({ doctor }: DoctorPrfileInterface) => {
   return (
@@ -38,13 +49,25 @@ const DoctorProfile = ({ doctor }: DoctorPrfileInterface) => {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
-                    className="w-4 h-4 fill-orange-400 text-orange-400"
+                    className={`w-4 h-4 ${
+                      star <= Math.round(doctor.averageRating || 0)
+                        ? "fill-orange-400 text-orange-400"
+                        : "text-gray-300"
+                    }`}
                   />
                 ))}
               </div>
-              <span className="text-sm font-semibold text-gray-700">5.0</span>
+              <span className="text-sm font-semibold text-gray-700">
+                {doctor.averageRating
+                  ? doctor.averageRating.toFixed(1)
+                  : "No ratings yet"}
+              </span>
             </div>
-            <div className="text-sm text-gray-500">New Doctor</div>
+            {(doctor.totalRatings ?? 0) > 0 && (
+              <div className="text-sm text-gray-500">
+                ({doctor.totalRatings ?? 0} {(doctor.totalRatings ?? 0) === 1 ? "review" : "reviews"})
+              </div>
+            )}
           </div>
 
           <div className="flex justify-center flex-wrap gap-2 mb-6">
@@ -105,9 +128,70 @@ const DoctorProfile = ({ doctor }: DoctorPrfileInterface) => {
               </p>
             </div>
             <div className="text-green-600">
-                <Heart className="w-8 h-8"/>
+              <Heart className="w-8 h-8" />
             </div>
           </div>
+
+          {/* Patient Reviews Section */}
+          {doctor.reviews && doctor.reviews.length > 0 && (
+            <div className="mt-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <MessageSquare className="w-5 h-5 text-blue-600" />
+                <h3 className="font-semibold text-gray-900">Patient Reviews</h3>
+              </div>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {doctor.reviews.map((review) => (
+                  <div
+                    key={review._id}
+                    className="bg-gray-50 p-3 rounded-lg border border-gray-200"
+                  >
+                    <div className="flex items-start space-x-3">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage src={review.patientId?.profileImage} />
+                        <AvatarFallback className="bg-blue-100 text-blue-600 text-xs">
+                          {review.patientId?.name?.charAt(0)?.toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-sm font-semibold text-gray-900">
+                            {review.patientId?.name}
+                          </p>
+                          <div className="flex">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`w-3 h-3 ${
+                                  star <= review.rating
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        {review.feedback && (
+                          <p className="text-xs text-gray-600 mb-1">
+                            {review.feedback}
+                          </p>
+                        )}
+                        <p className="text-xs text-gray-400">
+                          {new Date(review.feedbackDate).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

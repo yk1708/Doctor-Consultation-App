@@ -15,6 +15,9 @@ export interface Appointment {
   fees: number;
   prescription?: string;
   notes?: string;
+  rating?: number;
+  feedback?: string;
+  feedbackDate?: string;
   createdAt: string;
   updatedAt: string;
 }

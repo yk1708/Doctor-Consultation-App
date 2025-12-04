@@ -238,14 +238,22 @@ const DoctorAppointmentContent = () => {
 
             </div>
 
-            {appointment.status === 'Completed' && (
+            {appointment.status === 'Completed' && appointment.rating && (
               <div className="flex items-center space-x-1">
-                {[...Array(5)].map((_,i) => (
+                {[...Array(5)].map((_, i) => (
                   <Star
-                   className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < (appointment.rating ?? 0)
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-gray-300"
+                    }`}
                   />
                 ))}
-                </div>
+                <span className="text-sm text-gray-600 ml-1">
+                  ({appointment.rating ?? 0}/5)
+                </span>
+              </div>
             )}
             </div>
           </div>
