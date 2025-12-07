@@ -333,16 +333,18 @@ const DoctorListPage = () => {
                   </div>
 
                   <div className="space-y-2 mb-4 text-center">
-                    <div className="flex items-center justify-center text-gray-600">
-                      <MapPin className="w-4 h-4 mr-1"/>
-                      <span className="text-sm">{doctor.hospitalInfo.city}</span>
-                    </div>
+                    {doctor.hospitalInfo?.city && (
+                      <div className="flex items-center justify-center text-gray-600">
+                        <MapPin className="w-4 h-4 mr-1"/>
+                        <span className="text-sm">{doctor.hospitalInfo.city}</span>
+                      </div>
+                    )}
 
                            <div className="flex justify-center items-center gap-2 text-center">
                      <p className="text-gray-600 text-md font-semibold">
                       Consultation Fee:
                      </p>
-                     <p className="font-bold text-green-600 text-lg">₹{doctor.fees}</p>
+                     <p className="font-bold text-green-600 text-lg">₹{doctor.fees || 0}</p>
                   </div>
                   </div>
 

@@ -39,12 +39,16 @@ export const userAuthStore = create<AuthState>()(
         isAuthenticated: true,
         error: null,
       });
-      localStorage.setItem('token',token);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token',token);
+      }
     },
     clearError: () => set({ error: null }),
 
     logout: () => {
-      localStorage.removeItem("token");
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem("token");
+      }
       set({
         user: null,
         token: null,

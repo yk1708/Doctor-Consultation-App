@@ -504,7 +504,7 @@ const ProfilePage = ({ userType }: ProfileProps) => {
             type="date"
             value={formatDateForInput(formData.availabilityRange?.startDate)}
             onChange={(e) =>
-              handleInputChnage("availabilityRange?.startDate", e.target.value)
+              handleInputChnage("availabilityRange.startDate", e.target.value)
             }
             disabled={!isEditing}
           />
@@ -516,7 +516,7 @@ const ProfilePage = ({ userType }: ProfileProps) => {
             type="date"
             value={formatDateForInput(formData.availabilityRange?.endDate)}
             onChange={(e) =>
-              handleInputChnage("availabilityRange?.endDate", e.target.value)
+              handleInputChnage("availabilityRange.endDate", e.target.value)
             }
             disabled={!isEditing}
           />
