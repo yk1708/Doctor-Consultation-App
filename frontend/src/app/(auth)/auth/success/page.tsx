@@ -21,11 +21,11 @@ export default function AuthSuccessPage() {
         // Set user in store (this will also store token in localStorage)
         setUser({ ...user, type }, token);
 
-        // Check if user needs onboarding
+        // Redirect to dashboard
         if (type === 'doctor') {
-          router.push('/onboarding/doctor');
+          router.push('/doctor/dashboard');
         } else {
-          router.push('/onboarding/patient');
+          router.push('/patient/dashboard');
         }
       } catch (error) {
         console.error('Error processing auth success:', error);

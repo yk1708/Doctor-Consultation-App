@@ -54,14 +54,15 @@ interface AuthFormProps {
             email: formData.email,
             password: formData.password,
           });
+          router.push('/doctor/dashboard');
         } else {
           await registerPatient({
             name: formData.name,
             email: formData.email,
             password: formData.password,
           });
+          router.push('/patient/dashboard');
         }
-        router.push(`/onboarding/${userRole}`);
       } else {
         if (userRole === 'doctor') {
           await loginDoctor(formData.email, formData.password);
