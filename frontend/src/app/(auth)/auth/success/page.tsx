@@ -4,6 +4,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { userAuthStore } from '@/store/authStore';
 import Loader from '@/components/Loader';
 
+export const dynamic = 'force-dynamic';
+
 function AuthSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
