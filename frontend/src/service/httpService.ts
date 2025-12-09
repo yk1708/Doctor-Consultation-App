@@ -35,6 +35,10 @@ class HttpService {
     options?: RequestOptions
   ): Promise<ApiResponse<T>> {
     try {
+        if (!BASE_URL) {
+          throw new Error('API URL is not configured. Please set NEXT_PUBLIC_API_URL environment variable.');
+        }
+
         const url = `${BASE_URL}${endPoint}`;
         const headers = {
             ...this.getHeaders(auth),
@@ -54,8 +58,13 @@ class HttpService {
         }
         return data;
     } catch (error:any) {
-        console.error(`Api Error [${method} ${endPoint} ]:`, error)
-        console.log(error)
+        console.error(`API Error [${method} ${endPoint}]:`, error.message || error);
+        
+        // Provide more user-friendly error messages
+        if (error.message?.includes('Failed to fetch') || error.name === 'TypeError') {
+          throw new Error('Unable to connect to the server. Please check your internet connection or try again later.');
+        }
+        
         throw error;
     }
   }
