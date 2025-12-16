@@ -46,39 +46,34 @@ interface AuthFormProps {
     if (type === 'signup' && !agreeToTerms) return;
 
     try {
-      const endpoint = type === 'signup' 
-        ? `${BASE_URL}/auth/${userRole}/register`
-        : `${BASE_URL}/auth/${userRole}/login`;
-
-      const body = type === 'signup' 
-        ? { name: formData.name, email: formData.email, password: formData.password }
-        : { email: formData.email, password: formData.password };
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Authentication failed');
+      if (type === 'signup') {
+        if (userRole === 'doctor') {
+          await registerDoctor({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+          });
+          router.push('/doctor/dashboard');
+        } else {
+          await registerPatient({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+          });
+          router.push('/patient/dashboard');
+        }
+      } else {
+        if (userRole === 'doctor') {
+          await loginDoctor(formData.email, formData.password);
+          router.push('/doctor/dashboard');
+        } else {
+          await loginPatient(formData.email, formData.password);
+          router.push('/patient/dashboard');
+        }
       }
-
-      // Store token and user data
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('token', data.data.token);
-      }
-
-      // Redirect to dashboard
-      const dashboardPath = userRole === 'doctor' ? '/doctor/dashboard' : '/patient/dashboard';
-      router.push(dashboardPath);
-    } catch (err: any) {
+    } catch (err) {
+        console.log(err)
       console.error(`${type} failed:`, err);
-      alert(err.message || 'Authentication failed. Please try again.');
     }
   };
 
